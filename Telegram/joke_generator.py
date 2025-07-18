@@ -4,8 +4,8 @@ from huggingface_hub import InferenceClient
 
 def make_joke(news_text):
     client = InferenceClient(
-        provider="hf-inference",
-        token=os.environ["HF_TOKEN"],
+        provider="together",
+        api_key=os.environ["TOGETHER_API_KEY"],
     )
 
     prompt = (
@@ -15,7 +15,7 @@ def make_joke(news_text):
     )
 
     result = client.text_generation(
-        model="gpt2",
+        model="mistralai/Mistral-7B-Instruct-v0.2",
         prompt=prompt,
         max_new_tokens=100,
     )
