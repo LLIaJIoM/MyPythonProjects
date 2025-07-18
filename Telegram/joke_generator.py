@@ -15,7 +15,7 @@ def make_joke(news_text):
     )
 
     completion = client.chat.completions.create(
-        model="HuggingFaceTB/SmolLM3-3B",
+        model="tiiuae/falcon-7b-instruct",
         messages=[
             {"role": "user", "content": prompt}
         ],
