@@ -3,6 +3,13 @@ import feedparser
 
 def get_latest_news(rss_url, limit=5):
     feed = feedparser.parse(rss_url)
+    
+    if hasattr(feed, 'status') and feed.status != 200:
+        return []
+    
+    if len(feed.entries) == 0:
+        return []
+    
     news = []
     for entry in feed.entries[:limit]:
         news.append({
@@ -14,6 +21,6 @@ def get_latest_news(rss_url, limit=5):
 
 # Пример использования:
 if __name__ == "__main__":
-    news = get_latest_news("https://meduza.io/rss/all")
+    news = get_latest_news("https://lenta.ru/rss/news")
     for n in news:
         print(n['title'], n['link'])

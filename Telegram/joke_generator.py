@@ -1,29 +1,62 @@
 # joke_generator.py
 import requests
-
-OPENROUTER_API_KEY = "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"
+import uuid
+import re
 
 def make_joke(news_text):
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
-        # Можно добавить: "HTTP-Referer": "localhost", "X-Title": "my-bot"
-    }
+    url = "http://localhost:8080/backend-api/v2/conversation"
+    headers = {"Content-Type": "application/json"}
+    
+    # Генерируем уникальные ID
+    request_id = str(int(uuid.uuid4().int % 10**18))
+    conversation_id = str(uuid.uuid4())
+    
     data = {
-        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "id": request_id,
+        "conversation_id": conversation_id,
+        "action": "next",
+        "api_key": None,
+        "aspect_ratio": "16:9",
+        "conversation": None,
+        "download_media": True,
+        "ignored": ["Anthropic", "Blackbox", "BlackboxPro", "CablyAI", "Cerebras"],
         "messages": [
-            {"role": "system", "content": "Ты — остроумный комик. Преврати новость в короткую шутку."},
-            {"role": "user", "content": f"Сделай из этой новости шутку: {news_text}"}
+            {"role": "system", "content": "Ты — острый сатирик и комик. Создавай провокационные, саркастичные и остроумные шутки на основе новостей. Используй чёрный юмор, иронию и сарказм. Шутки должны быть смелыми, но не оскорбительными."},
+            {"role": "user", "content": f"Сделай из этой новости острую саркастичную шутку: {news_text}"}
         ],
-        "stream": False,
-        "temperature": 0.8,
-        "max_tokens": 100
+        "model": "openai",
+        "provider": "PollinationsAI",
+        "web_search": False
     }
-    response = requests.post(url, headers=headers, json=data)
+    
+    response = requests.post(url, json=data, headers=headers, stream=True)
+    
     try:
-        return response.json()["choices"][0]["message"]["content"].strip()
-    except Exception:
+        full_response = ""
+        for line in response.iter_lines():
+            if line:
+                line = line.decode('utf-8')
+                
+                # Проверяем, что это JSON строка
+                if line.strip().startswith('{'):
+                    try:
+                        import json
+                        json_data = json.loads(line)
+                        
+                        # Извлекаем текст только из строк с type: "content"
+                        if json_data.get("type") == "content" and "content" in json_data:
+                            content = json_data["content"]
+                            full_response += content
+                            
+                        # Проверяем на завершение
+                        elif json_data.get("type") == "finish":
+                            break
+                            
+                    except json.JSONDecodeError:
+                        pass
+        
+        return full_response.strip() if full_response else "[Ошибка генерации шутки]"
+    except Exception as e:
         return "[Ошибка генерации шутки]"
 
 # Пример использования:
