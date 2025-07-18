@@ -14,14 +14,12 @@ def make_joke(news_text):
         f"Сделай из этой новости острую саркастичную шутку: {news_text}"
     )
 
-    completion = client.chat.completions.create(
+    result = client.text_generation(
         model="google/flan-t5-large",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
+        prompt=prompt,
+        max_new_tokens=100,
     )
-
-    return completion.choices[0].message.content
+    return result
 
 # Пример использования:
 # print(make_joke("В Москве прошёл дождь."))    
