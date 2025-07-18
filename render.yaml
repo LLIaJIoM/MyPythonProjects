@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: telegram-gpt-server
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python Telegram/gpt_server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
+
+  - type: worker
+    name: telegram-bot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_forever.py
+    envVars:
+      - key: GPT_API_URL
+        value: https://telegram-gpt-server.onrender.com
+      - key: TELEGRAM_TOKEN
+        value: 7638129033:AAEYmXQikS0qa-qJ-Roxp3Wg7HLEQH9f-ao
+      - key: CHANNEL_ID
+        value: "-1002719144496" 

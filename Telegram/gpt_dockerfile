@@ -1,0 +1,26 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Клонируем G4F
+RUN git clone https://github.com/xtekky/gpt4free.git /app/g4f
+
+# Устанавливаем зависимости G4F
+RUN pip install -r /app/g4f/requirements.txt
+
+# Устанавливаем дополнительные зависимости
+RUN pip install flask flask-cors
+
+# Копируем наш сервер
+COPY gpt_server.py .
+
+# Открываем порт
+EXPOSE 8080
+
+# Запускаем сервер
+CMD ["python", "gpt_server.py"] 

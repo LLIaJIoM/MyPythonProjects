@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # G4F GPT сервер
+  gpt-server:
+    build:
+      context: .
+      dockerfile: gpt_dockerfile
+    container_name: g4f-server
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - telegram-network
+
+  # Telegram бот
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: bot_dockerfile
+    container_name: telegram-news-bot
+    restart: unless-stopped
+    environment:
+      - GPT_API_URL=http://gpt-server:8080
+    depends_on:
+      - gpt-server
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - telegram-network
+
+networks:
+  telegram-network:
+    driver: bridge 
