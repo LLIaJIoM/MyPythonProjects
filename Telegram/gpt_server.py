@@ -3,10 +3,12 @@ from flask_cors import CORS
 import sys
 import os
 
-# Добавляем путь к G4F
-sys.path.append('/app/g4f')
+try:
+    from g4f import ChatCompletion, Provider
+except ImportError as e:
+    print("Could not import g4f. Make sure the g4f package is installed and the path is correct.")
+    raise
 
-from g4f import ChatCompletion, Provider
 import asyncio
 import json
 
