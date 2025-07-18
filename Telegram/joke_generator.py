@@ -15,7 +15,7 @@ def make_joke(news_text):
     )
 
     result = client.text_generation(
-        model="google/flan-t5-large",
+        model="gpt2",
         prompt=prompt,
         max_new_tokens=100,
     )
