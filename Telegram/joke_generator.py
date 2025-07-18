@@ -1,25 +1,31 @@
 # joke_generator.py
 import os
-from huggingface_hub import InferenceClient
+import requests
 
 def make_joke(news_text):
-    client = InferenceClient(
-        provider="together",
-        api_key=os.environ["TOGETHER_API_KEY"],
-    )
-
+    api_key = os.environ["TOGETHER_API_KEY"]
+    url = "https://api.together.xyz/v1/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
     prompt = (
         "Ты — острый сатирик и комик. Создавай провокационные, саркастичные и остроумные шутки на основе новостей. "
         "Используй чёрный юмор, иронию и сарказм. Шутки должны быть смелыми, но не оскорбительными.\n"
         f"Сделай из этой новости острую саркастичную шутку: {news_text}"
     )
-
-    result = client.text_generation(
-        model="meta-llama/Llama-2-70b-chat-hf",
-        prompt=prompt,
-        max_new_tokens=100,
-    )
-    return result
+    data = {
+        "model": "meta-llama/Llama-2-70b-chat-hf",
+        "prompt": prompt,
+        "max_tokens": 100,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "stop": None
+    }
+    response = requests.post(url, headers=headers, json=data, timeout=60)
+    response.raise_for_status()
+    result = response.json()
+    return result["choices"][0]["text"].strip()
 
 # Пример использования:
 # print(make_joke("В Москве прошёл дождь."))    
