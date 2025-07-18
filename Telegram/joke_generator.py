@@ -15,7 +15,7 @@ def make_joke(news_text):
     )
 
     result = client.text_generation(
-        model="mistralai/Mistral-7B-Instruct-v0.2",
+        model="meta-llama/Llama-2-70b-chat-hf",
         prompt=prompt,
         max_new_tokens=100,
     )
