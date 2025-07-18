@@ -6,7 +6,7 @@ import re
 def make_joke(news_text):
     # Используем переменную окружения для URL GPT сервера
     import os
-    gpt_url = os.getenv('GPT_API_URL', 'http://localhost:8080')
+    gpt_url = os.getenv('GPT_API_URL', 'https://mypythonprojects-production.up.railway.app:8888')
     url = f"{gpt_url}/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     
