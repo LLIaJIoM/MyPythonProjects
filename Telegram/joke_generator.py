@@ -4,6 +4,7 @@ from huggingface_hub import InferenceClient
 
 def make_joke(news_text):
     client = InferenceClient(
+        provider="hf-inference",
         token=os.environ["HF_TOKEN"],
     )
 
@@ -14,7 +15,7 @@ def make_joke(news_text):
     )
 
     completion = client.chat.completions.create(
-        model="deepseek-ai/DeepSeek-R1",
+        model="HuggingFaceTB/SmolLM3-3B",
         messages=[
             {"role": "user", "content": prompt}
         ],
