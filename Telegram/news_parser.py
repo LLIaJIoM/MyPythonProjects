@@ -67,24 +67,18 @@ def get_news_from_tass():
     return get_latest_news("https://tass.ru/rss/v2.xml", limit=3)
 
 def get_combined_news():
-    """Получает новости из нескольких источников"""
+    """Получает новости только с Лента.ру"""
     all_news = []
     
-    # Получаем новости из разных источников
-    sources = [
-        ("Lenta.ru", get_news_from_lenta),
-        ("РИА Новости", get_news_from_ria),
-        ("ТАСС", get_news_from_tass)
-    ]
-    
-    for source_name, source_func in sources:
-        try:
-            news = source_func()
-            for item in news:
-                item['source'] = source_name
-            all_news.extend(news)
-        except Exception as e:
-            print(f"❌ Ошибка получения новостей с {source_name}: {e}")
+    # Получаем новости только с Лента.ру
+    try:
+        news = get_news_from_lenta()
+        for item in news:
+            item['source'] = "Lenta.ru"
+        all_news.extend(news)
+        print(f"✅ Получено {len(news)} новостей с Лента.ру")
+    except Exception as e:
+        print(f"❌ Ошибка получения новостей с Лента.ру: {e}")
     
     # Сортируем по дате публикации (если доступна)
     all_news.sort(key=lambda x: x.get('published', ''), reverse=True)

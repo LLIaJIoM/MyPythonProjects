@@ -23,7 +23,7 @@ def save_processed_news():
 
 def format_news_message(news, joke):
     """Форматирует сообщение с новостью и шуткой"""
-    source = news.get('source', 'Новости')
+    source = news.get('source', 'Лента.ру')
     
     message = f"""📰 <b>{news['title']}</b>
 
@@ -33,7 +33,7 @@ def format_news_message(news, joke):
 📊 <b>Источник:</b> {source}
 🔗 <a href="{news['link']}">Подробнее</a>
 
-#новости #юмор #сатира"""
+#новости #юмор #сатира #лента"""
     
     return message
 
