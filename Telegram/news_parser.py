@@ -1,26 +1,109 @@
-# news_parser.py
 import feedparser
+import requests
+from datetime import datetime, timedelta
+import time
 
 def get_latest_news(rss_url, limit=5):
-    feed = feedparser.parse(rss_url)
-    
-    if hasattr(feed, 'status') and feed.status != 200:
+    """Получает последние новости из RSS ленты"""
+    try:
+        # Парсим RSS ленту
+        feed = feedparser.parse(rss_url)
+        
+        if feed.bozo:
+            print(f"⚠️ Ошибка парсинга RSS: {feed.bozo_exception}")
+            return []
+        
+        news_list = []
+        
+        for entry in feed.entries[:limit]:
+            # Извлекаем данные новости
+            title = entry.get('title', 'Без заголовка')
+            summary = entry.get('summary', '')
+            link = entry.get('link', '')
+            
+            # Очищаем текст от HTML тегов
+            summary = clean_html(summary)
+            
+            # Проверяем, что новость не слишком старая (не старше 24 часов)
+            if 'published_parsed' in entry:
+                pub_date = datetime(*entry.published_parsed[:6])
+                if datetime.now() - pub_date > timedelta(hours=24):
+                    continue
+            
+            news_list.append({
+                'title': title,
+                'summary': summary,
+                'link': link,
+                'published': entry.get('published', '')
+            })
+        
+        print(f"📰 Получено {len(news_list)} новостей из {rss_url}")
+        return news_list
+        
+    except Exception as e:
+        print(f"❌ Ошибка получения новостей: {e}")
         return []
-    
-    if len(feed.entries) == 0:
-        return []
-    
-    news = []
-    for entry in feed.entries[:limit]:
-        news.append({
-            'title': entry.title,
-            'summary': entry.summary,
-            'link': entry.link
-        })
-    return news
 
-# Пример использования:
+def clean_html(text):
+    """Очищает текст от HTML тегов"""
+    import re
+    # Удаляем HTML теги
+    clean = re.compile('<.*?>')
+    text = re.sub(clean, '', text)
+    # Удаляем лишние пробелы
+    text = ' '.join(text.split())
+    return text
+
+def get_news_from_lenta():
+    """Получает новости с Lenta.ru"""
+    return get_latest_news("https://lenta.ru/rss/news", limit=3)
+
+def get_news_from_ria():
+    """Получает новости с РИА Новости"""
+    return get_latest_news("https://ria.ru/export/rss2/archive/index.xml", limit=3)
+
+def get_news_from_tass():
+    """Получает новости с ТАСС"""
+    return get_latest_news("https://tass.ru/rss/v2.xml", limit=3)
+
+def get_combined_news():
+    """Получает новости из нескольких источников"""
+    all_news = []
+    
+    # Получаем новости из разных источников
+    sources = [
+        ("Lenta.ru", get_news_from_lenta),
+        ("РИА Новости", get_news_from_ria),
+        ("ТАСС", get_news_from_tass)
+    ]
+    
+    for source_name, source_func in sources:
+        try:
+            news = source_func()
+            for item in news:
+                item['source'] = source_name
+            all_news.extend(news)
+        except Exception as e:
+            print(f"❌ Ошибка получения новостей с {source_name}: {e}")
+    
+    # Сортируем по дате публикации (если доступна)
+    all_news.sort(key=lambda x: x.get('published', ''), reverse=True)
+    
+    return all_news[:5]  # Возвращаем топ-5 новостей
+
 if __name__ == "__main__":
-    news = get_latest_news("https://lenta.ru/rss/news")
-    for n in news:
-        print(n['title'], n['link'])
+    print("🧪 Тест парсера новостей...")
+    
+    # Тестируем разные источники
+    sources = [
+        ("Lenta.ru", "https://lenta.ru/rss/news"),
+        ("РИА Новости", "https://ria.ru/export/rss2/archive/index.xml"),
+        ("ТАСС", "https://tass.ru/rss/v2.xml")
+    ]
+    
+    for source_name, url in sources:
+        print(f"\n📰 Тестируем {source_name}:")
+        news = get_latest_news(url, limit=2)
+        for i, item in enumerate(news, 1):
+            print(f"  {i}. {item['title'][:50]}...")
+            print(f"     {item['summary'][:100]}...") 

@@ -1,6 +1,7 @@
 python-telegram-bot==20.7
 flask==2.3.3
 flask-cors==4.0.0 
-feedparser 
-g4f @ git+https://github.com/xtekky/gpt4free.git 
-huggingface_hub 
+feedparser==6.0.10
+requests==2.32.4
+aiohttp==3.9.1
+asyncio 
