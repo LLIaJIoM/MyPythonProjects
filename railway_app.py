@@ -11,6 +11,11 @@ import threading
 import time
 from flask import Flask
 
+# Проверка на остановку деплоя
+if os.environ.get('RAILWAY_STOP') == 'true':
+    print("🛑 Деплой остановлен через переменную окружения")
+    sys.exit(0)
+
 # Устанавливаем переменные окружения если они не установлены
 if not os.environ.get('TELEGRAM_BOT_TOKEN'):
     os.environ['TELEGRAM_BOT_TOKEN'] = '7638129033:AAEYmXQikS0qa-qJ-Roxp3Wg7HLEQH9f-ao'
@@ -42,6 +47,13 @@ def status():
         "channel_id": os.environ.get('TELEGRAM_CHANNEL_ID', 'НЕ УСТАНОВЛЕН'),
         "uptime": time.time()
     }
+
+@app.route('/stop')
+def stop_service():
+    """Endpoint для остановки сервиса"""
+    print("🛑 Получен запрос на остановку сервиса")
+    # Можно добавить graceful shutdown здесь
+    return {"status": "stopping"}
 
 def run_bot():
     """Запускает Telegram бота в отдельном потоке"""
