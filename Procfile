@@ -1,0 +1,1 @@
+worker: python Telegram/main.py 
