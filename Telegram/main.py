@@ -76,8 +76,8 @@ async def process_news():
                     else:
                         print(f"❌ Ошибка отправки новости: {news['title'][:30]}...")
                     
-                    # Задержка между постами
-                    await asyncio.sleep(10)
+                    # Задержка между постами (5 минут)
+                    await asyncio.sleep(300)
                     
                 except Exception as e:
                     print(f"❌ Ошибка обработки новости: {e}")
