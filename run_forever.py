@@ -1,7 +1,7 @@
-import subprocess
 import threading
 import time
 import os
+import asyncio
 from flask import Flask
 
 app = Flask(__name__)
@@ -21,7 +21,13 @@ def health():
 def run_bot():
     """Запускает Telegram бота в отдельном потоке"""
     try:
-        subprocess.run(["python", "Telegram/main.py"], check=True)
+        # Импортируем и запускаем бота напрямую
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'Telegram'))
+        
+        from main import main as bot_main
+        asyncio.run(bot_main())
     except Exception as e:
         print(f"Ошибка запуска бота: {e}")
 
